@@ -23,17 +23,14 @@ public class Server {
             Socket client = server.accept();
             es.submit(() -> {
                 log.info("Accept client");
-
                 // make I/O object
                 InputStreamReader in = new InputStreamReader(client.getInputStream());
                 OutputStreamWriter out = new OutputStreamWriter(client.getOutputStream());
                 BufferedReader br = new BufferedReader(in);
                 BufferedWriter bw = new BufferedWriter(out);
                 outputStream.put(client.getPort(), bw);
-                String line = br.readLine();
                 // print and write
-                for (; line != null; line = br.readLine()) {
-                    Thread.sleep(5000);
+                for ( String line = br.readLine(); line != null; line = br.readLine()) {
                     log.info(Thread.currentThread().getName() + " :: " + line);
                     for (Integer key : outputStream.keySet()) {
                         outputStream.get(key).write(line);
