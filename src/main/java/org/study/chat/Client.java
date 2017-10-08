@@ -12,7 +12,8 @@ public class Client {
     public static void main(String[] args) throws IOException {
         String url = "localhost";
         int port = 9000;
-        /*while(true){
+        while(true){
+            Socket socket = new Socket(url, port);
             InputStreamReader in = new InputStreamReader(socket.getInputStream());
             OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream());
             BufferedReader br = new BufferedReader(in);
@@ -27,9 +28,9 @@ public class Client {
                 bw.flush();
                 log.info(br.readLine());
             }
-        }*/
+        }
 
-        ExecutorService es = Executors.newFixedThreadPool(10);
+/*        ExecutorService es = Executors.newFixedThreadPool(10);
         for(int i  =0 ; i< 10; i++){
             int count = i;
             es.submit(() -> {
@@ -51,6 +52,6 @@ public class Client {
             );
         }
 
-        es.shutdown();
+        es.shutdown();*/
     }
 }
