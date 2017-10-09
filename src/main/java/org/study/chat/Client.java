@@ -2,9 +2,10 @@ package org.study.chat;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.*;
-import java.net.Socket;
-import java.util.concurrent.*;
+import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 @Slf4j
 public class Client {
@@ -14,68 +15,33 @@ public class Client {
     public static void main(String[] args) throws IOException {
         ClientSocket clientSocket = new ClientSocket(URL, PORT);
         ExecutorService es = Executors.newFixedThreadPool(2);
-        // send
-        Future send =  es.submit(() -> {
-            clientSocket.send();
-            return "";
-        });
 
         // receive
-        Future<String> receive = es.submit(() -> {
+        FutureTask receiveTask = new CallbackFutureTask(() -> {
             clientSocket.receive();
             return "";
+        }, () -> {
+            //close ..
         });
 
-        FutureTask futureTask = new FutureTask(() -> {
+        // send
+        FutureTask sendTask = new CallbackFutureTask(() -> {
             clientSocket.send();
             return "";
+        }, () -> {
+            // close ..
+            // How can I close Connection .. ?
         });
 
-        // How Can I implement End-Code ....?
-        // Callback?
-    }
 
-    static class ClientSocket {
-        private Socket socket;
-        private InputStreamReader in;
-        private OutputStreamWriter out;
-        private BufferedReader br;
-        private BufferedReader keyboard;
-        private BufferedWriter bw;
+        es.execute(sendTask);
+        es.execute(receiveTask);
 
-        public ClientSocket(String url, int port) throws IOException {
-            this.socket = new Socket(url, port);
-            this.in = new InputStreamReader(socket.getInputStream());
-            this.out = new OutputStreamWriter(socket.getOutputStream());
-            this.br = new BufferedReader(in);
-            this.keyboard = new BufferedReader(new InputStreamReader(System.in));
-            this.bw = new BufferedWriter(out);
-        }
-
-        public void receive() throws IOException {
-            // br.readLine() :: Blocking
-
-            for (String text = br.readLine(); isVaildText(text); text = br.readLine()) {
-                log.info(text);
-            }
-        }
-
-        public void send() throws IOException {
-            // keyboard.readLine() :: Blocking
-            for (String text = keyboard.readLine(); isVaildText(text); text = keyboard.readLine()) {
-                bw.write(text);
-                bw.newLine();
-                bw.flush();
-            }
-        }
-        private boolean isVaildText(String text) {
-            log.info("Here :: "+text);
-            return !"".equals(text) && text != null ;
-        }
 
     }
 
 }
+
 
 /*        ExecutorService es = Executors.newFixedThreadPool(10);
         for(int i  =0 ; i< 10; i++){
