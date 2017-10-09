@@ -32,10 +32,14 @@ public class ClientSocket {
 
     public void send() throws IOException {
         // keyboard.readLine() :: Blocking
-        for (String text = keyboard.readLine(); isVaildText(text); text = keyboard.readLine()) {
+        for (String text = keyboard.readLine(); text != null; text = keyboard.readLine()) {
             bw.write(text);
             bw.newLine();
             bw.flush();
+            if("".equals(text)){
+                br.close();
+                return;
+            }
         }
     }
 

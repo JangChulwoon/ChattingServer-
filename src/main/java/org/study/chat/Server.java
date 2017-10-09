@@ -3,12 +3,11 @@ package org.study.chat;
 
 import lombok.extern.slf4j.Slf4j;
 
+import javax.naming.ldap.SortKey;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 @Slf4j
 public class Server {
@@ -21,7 +20,8 @@ public class Server {
         log.info("Ready server");
         while (true) {
             Socket client = server.accept();
-            es.submit(() -> {
+            Future<String> f = es.submit(() -> {
+
                 log.info("Accept client");
                 // make I/O object
                 InputStreamReader in = new InputStreamReader(client.getInputStream());
@@ -32,6 +32,14 @@ public class Server {
                 // print and write
                 for ( String line = br.readLine(); line != null; line = br.readLine()) {
                     log.info(Thread.currentThread().getName() + " :: " + line);
+                    log.info(line);
+                    if("".equals(line)){
+                        br.close();
+                        bw.close();
+                        in.close();
+                        out.close();
+                        return "";
+                    }
                     for (Integer key : outputStream.keySet()) {
                         outputStream.get(key).write(line);
                         outputStream.get(key).newLine();
@@ -40,7 +48,9 @@ public class Server {
                 }
                 return "";
             });
+
         }
+
 
     }
 }

@@ -3,6 +3,7 @@ package org.study.chat;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
@@ -21,14 +22,11 @@ public class Client {
             clientSocket.receive();
             return "";
         }, () -> {
-            //close ..
             try {
                 clientSocket.closeResource();
-                Thread.currentThread().interrupt();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         });
 
         // send
@@ -36,14 +34,21 @@ public class Client {
             clientSocket.send();
             return "";
         }, () -> {
-            // close ..
-            // How can I close Connection .. ?
-            Thread.currentThread().interrupt();
             receiveTask.cancel(true);
         });
 
         es.execute(sendTask);
         es.execute(receiveTask);
+
+        try {
+            sendTask.get();
+            receiveTask.get();
+            es.shutdownNow();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
 
 
     }
