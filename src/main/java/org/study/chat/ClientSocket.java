@@ -43,6 +43,16 @@ public class ClientSocket {
         return !"".equals(text) && text != null ;
     }
 
+    // ..?
+    public void closeResource() throws IOException {
+        bw.close();
+        keyboard.close();
+        br.close();
+        out.close();
+        in.close();
+        socket.close();
+    }
+
 
 }
 

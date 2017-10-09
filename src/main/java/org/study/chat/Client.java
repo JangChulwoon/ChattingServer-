@@ -22,6 +22,13 @@ public class Client {
             return "";
         }, () -> {
             //close ..
+            try {
+                clientSocket.closeResource();
+                Thread.currentThread().interrupt();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         });
 
         // send
@@ -31,8 +38,9 @@ public class Client {
         }, () -> {
             // close ..
             // How can I close Connection .. ?
+            Thread.currentThread().interrupt();
+            receiveTask.cancel(true);
         });
-
 
         es.execute(sendTask);
         es.execute(receiveTask);
